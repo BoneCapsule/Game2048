@@ -14,8 +14,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        gameView = findViewById(R.id.game_view)
-        scoreTextView = findViewById(R.id.tv_score)
+//        gameView = findViewById(R.id.game_view)
+//        scoreTextView = findViewById(R.id.tv_score)
 
 
     }

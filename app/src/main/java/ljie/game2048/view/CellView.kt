@@ -1,11 +1,10 @@
 package ljie.game2048.view
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 
@@ -15,9 +14,9 @@ class CellView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var num: Int = 0
     private var background: View = View(context)
     private var label: TextView = TextView(context)
-    private val colorMap = mapOf(0 to "#CCC0B3", 2 to "#EEE4DA", 4 to "#EDE0C8",
-        8 to "#F2B179", 16 to "#F49563", 32 to "#F5794D", 64 to "#F55D37", 128 to "#EEE863",
-        256 to "#EDB04D", 512 to "#ECB04D", 1024 to "#EB9437", 2048 to "#EA7821", 4096 to "#EA7821")
+    private val colorMap = mapOf(0 to 0x00000000, 2 to 0xffeee4da, 4 to 0xffede0c8,
+        8 to 0xfff2b179, 16 to 0xfff59563, 32 to 0xfff67c5f, 64 to 0xfff65e3b, 128 to 0xffedcf72,
+        256 to 0xffedcc61, 512 to 0xffedc850, 1024 to 0xffedc53f, 2048 to 0xffedc22e)
 
     init {
         background.setBackgroundColor(0x33ffffff)
@@ -33,21 +32,19 @@ class CellView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     fun setNum(num: Int) {
         this.num = num
-        if (num <= 0) {
-            label.text = ""
-            label.setBackgroundColor(0x33ffffff)
+        label.text = if (num <= 0) "" else num.toString()
+
+        val color = if (colorMap.containsKey(num)) {
+            colorMap[num]
         } else {
-            label.text = num.toString()
-            val color = if (colorMap.containsKey(num)) {
-                colorMap[num]
-            } else {
-                colorMap[0]
-            }
-            label.setBackgroundColor(Color.parseColor(color))
+            0xff3c3a32
         }
+        label.setBackgroundColor(color as Int)
     }
 
     fun getNum() = num
+
+    fun getLabel() = label
 
     override fun equals(other: Any?): Boolean {
         if (other == null) {
@@ -62,5 +59,11 @@ class CellView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         result = 31 * result + label.hashCode()
         result = 31 * result + colorMap.hashCode()
         return result
+    }
+
+    fun clone(): CellView {
+        val cell = CellView(context)
+        cell.setNum(num)
+        return cell
     }
 }

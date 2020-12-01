@@ -2,20 +2,20 @@ package ljie.game2048.view
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Point
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.GridLayout
-import android.widget.RelativeLayout
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import kotlin.math.abs
+import kotlin.math.min
 
 private const val MIN_DISTANCE = 5
 private const val TAG = "GameView"
 class GameView @JvmOverloads constructor (context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
-    GridLayout(context, attrs, defStyleAttr) {
+    LinearLayout(context, attrs, defStyleAttr) {
 
 
     private var num = 0
@@ -27,7 +27,11 @@ class GameView @JvmOverloads constructor (context: Context, attrs: AttributeSet?
 
     private var once = false
 
-    private var cells = Array(column) {arrayOfNulls<CellView>(column)}
+    private val cells by lazy {
+        Array(column) {arrayOfNulls<CellView>(column)}
+
+    }
+    private val emptyPoints by lazy { arrayListOf<Point>() }
 
     init {
         margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, margin.toFloat(), resources.displayMetrics).toInt()
@@ -37,13 +41,15 @@ class GameView @JvmOverloads constructor (context: Context, attrs: AttributeSet?
 
 
     private fun initView() {
-        columnCount = column
+        orientation = VERTICAL
         setBackgroundColor(0xffbbada0.toInt())
+
         setOnTouchListener(object : OnTouchListener {
             private var startX = 0F
             private var startY = 0F
             private var offsetX = 0F
             private var offsetY = 0F
+
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(view: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
@@ -78,7 +84,8 @@ class GameView @JvmOverloads constructor (context: Context, attrs: AttributeSet?
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        addCell((w - 10 )/ 4)
+        WIDTH = (min(w, h) - MARGIN) / LINE
+        addCell(WIDTH)
 
         startGame()
     }
@@ -93,10 +100,13 @@ class GameView @JvmOverloads constructor (context: Context, attrs: AttributeSet?
 
     private fun addCell(width: Int) {
         for (i in 0 until column) {
+            val linearLayout = LinearLayout(context)
+            val lp = LayoutParams(-1, width)
+            addView(linearLayout, lp)
+
             for (j in 0 until column) {
                 val cell = CellView(context)
-                cell.setNum(0)
-                addView(cell, width, height)
+                linearLayout.addView(cell, width, width)
                 cells[j][i] = cell
             }
         }
@@ -136,4 +146,9 @@ class GameView @JvmOverloads constructor (context: Context, attrs: AttributeSet?
 
     }
 
+    companion object {
+        const val LINE = 4
+        const val MARGIN = 10
+        var WIDTH = 0
+    }
 }
